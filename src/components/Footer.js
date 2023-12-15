@@ -14,10 +14,11 @@ const Footer = () => {
           maxWidth="1024px"
           height={16}
         >
-          <p>Nuno Mendes • © 2023</p>
+          <p>Pete • © 2022</p>
         </Flex>
       </footer>
     </Box>
   );
 };
+
 export default Footer;

@@ -17,42 +17,39 @@ import FullScreenSection from "./FullScreenSection";
 import useSubmit from "../hooks/useSubmit";
 import { useAlertContext } from "../context/alertContext";
 
-const LandingSection = () => {
+const ContactMeSection = () => {
   const { isLoading, response, submit } = useSubmit();
   const { onOpen } = useAlertContext();
 
-  // Step (a): Add the proper configuration to the useFormik hook
   const formik = useFormik({
     initialValues: {
       firstName: "",
       email: "",
-      type: "hireMe",
+      type: "",
       comment: "",
     },
-    // Step (a): Add the onSubmit function
-    onSubmit: async (values, { resetForm }) => {
-      try {
-        const response = await submit("/api/submit-form", values);
-        onOpen(response.type, response.message);
+    validationSchema: Yup.object({
+      firstName: Yup.string().required("Required"),
+      email: Yup.string().email("Invalid email address").required("Required"),
+      type: Yup.string().required("Required"),
+      comment: Yup.string()
+        .min(25, "Comment must be at least 25 characters long")
+        .required("Required"),
+    }),
+    onSubmit: async values => {
+      submit("https://www.formsubmiturl.example", values);
 
-        if (response.type === "success") {
-          // Reset the form on successful submission
-          resetForm();
-        }
-      } catch (error) {
-        onOpen("error", "An error occurred while submitting the form.");
+      if (response && response.type === "success") {
+        onOpen(
+          "success",
+          `Thanks for your submission ${values.firstName}, we will get back to you shortly!`
+        );
+
+        formik.resetForm();
+      } else {
+        onOpen("Oops!", "Something went wrong, please try again later!");
       }
     },
-
-    // Step (a): Add the validationSchema
-    validationSchema: Yup.object({
-      firstName: Yup.string().required("Name is required"),
-      email: Yup.string()
-        .email("Invalid email address")
-        .required("Email is required"),
-      type: Yup.string().required("Type of enquiry is required"),
-      comment: Yup.string().required("Message is required"),
-    }),
   });
 
   return (
@@ -76,7 +73,9 @@ const LandingSection = () => {
                 <Input
                   id="firstName"
                   name="firstName"
-                  {...formik.getFieldProps("firstName")}
+                  value={formik.values.firstName}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
                 />
                 <FormErrorMessage>{formik.errors.firstName}</FormErrorMessage>
               </FormControl>
@@ -88,18 +87,33 @@ const LandingSection = () => {
                   id="email"
                   name="email"
                   type="email"
-                  {...formik.getFieldProps("email")}
+                  value={formik.values.email}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
                 />
                 <FormErrorMessage>{formik.errors.email}</FormErrorMessage>
               </FormControl>
               <FormControl>
                 <FormLabel htmlFor="type">Type of enquiry</FormLabel>
-                <Select id="type" name="type" {...formik.getFieldProps("type")}>
-                  <option value="hireMe">Freelance project proposal</option>
-                  <option value="openSource">
+                <Select
+                  id="type"
+                  name="type"
+                  value={formik.values.type}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                >
+                  <option style={{ backgroundColor: "#512DA8" }} value="hireMe">
+                    Freelance project proposal
+                  </option>
+                  <option
+                    style={{ backgroundColor: "#512DA8" }}
+                    value="openSource"
+                  >
                     Open source consultancy session
                   </option>
-                  <option value="other">Other</option>
+                  <option style={{ backgroundColor: "#512DA8" }} value="other">
+                    Other
+                  </option>
                 </Select>
               </FormControl>
               <FormControl
@@ -110,7 +124,9 @@ const LandingSection = () => {
                   id="comment"
                   name="comment"
                   height={250}
-                  {...formik.getFieldProps("comment")}
+                  value={formik.values.comment}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
                 />
                 <FormErrorMessage>{formik.errors.comment}</FormErrorMessage>
               </FormControl>
@@ -130,4 +146,4 @@ const LandingSection = () => {
   );
 };
 
-export default LandingSection;
+export default ContactMeSection;

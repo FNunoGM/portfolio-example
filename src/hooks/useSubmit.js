@@ -26,8 +26,6 @@ const useSubmit = () => {
     } finally {
       setLoading(false);
     }
-
-    return response; // Return the response here
   };
 
   return { isLoading, response, submit };

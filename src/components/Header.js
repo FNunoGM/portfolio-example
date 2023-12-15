@@ -12,15 +12,15 @@ import { Box, HStack } from "@chakra-ui/react";
 const socials = [
   {
     icon: faEnvelope,
-    url: "mailto: @example.com",
+    url: "mailto: fnuno91@gmail.com",
   },
   {
     icon: faGithub,
-    url: "https://github.com",
+    url: "https://github.com/FNunoGM",
   },
   {
     icon: faLinkedin,
-    url: "https://www.linkedin.com",
+    url: "https://www.linkedin.com/in/fnunogm/",
   },
   {
     icon: faMedium,
@@ -33,38 +33,33 @@ const socials = [
 ];
 
 const Header = () => {
-  const [isHeaderVisible, setIsHeaderVisible] = useState(true);
-  const prevScrollY = useRef(0);
+  const [prevScrollPos, setPrevScrollPos] = useState(0);
+  const [isVisible, setIsVisible] = useState(true);
+  const headerRef = useRef(null);
 
   useEffect(() => {
     const handleScroll = () => {
-      const currentScrollY = window.scrollY;
+      const currentScrollPos = window.scrollY;
+      const isScrollingDown = currentScrollPos > prevScrollPos;
 
-      // Check if scrolling down
-      if (currentScrollY > prevScrollY.current) {
-        setIsHeaderVisible(false);
-      } else {
-        setIsHeaderVisible(true);
+      setPrevScrollPos(currentScrollPos);
+
+      if (isScrollingDown && isVisible) {
+        setIsVisible(false);
+      } else if (!isScrollingDown && !isVisible) {
+        setIsVisible(true);
       }
-
-      prevScrollY.current = currentScrollY;
     };
 
     window.addEventListener("scroll", handleScroll);
 
-    // Cleanup the event listener when the component unmounts
     return () => {
       window.removeEventListener("scroll", handleScroll);
     };
-  }, []);
+  }, [prevScrollPos, isVisible]);
 
-  const headerStyles = {
-    transform: isHeaderVisible ? "translateY(0)" : "translateY(-200px)",
-    transition: "transform 0.3s ease-in-out",
-    backgroundColor: "#18181b",
-  };
-
-  const handleClick = anchor => () => {
+  const handleClick = anchor => event => {
+    event.preventDefault();
     const id = `${anchor}-section`;
     const element = document.getElementById(id);
     if (element) {
@@ -75,13 +70,23 @@ const Header = () => {
     }
   };
 
+  const headerStyle = {
+    transform: isVisible ? "translateY(0)" : "translateY(-200px)",
+    zIndex: 1000,
+  };
+
   return (
     <Box
+      ref={headerRef}
+      style={headerStyle}
       position="fixed"
       top={0}
       left={0}
       right={0}
-      style={headerStyles}
+      translateY={0}
+      transitionProperty="transform"
+      transitionDuration=".3s"
+      transitionTimingFunction="ease-in-out"
       backgroundColor="#18181b"
     >
       <Box color="white" maxWidth="1280px" margin="0 auto">
@@ -93,6 +98,7 @@ const Header = () => {
         >
           <nav>
             <HStack spacing={4}>
+              {/* Add social media links based on the `socials` data */}
               {socials.map((social, index) => (
                 <a
                   key={index}
@@ -105,8 +111,9 @@ const Header = () => {
               ))}
             </HStack>
           </nav>
+
           <nav>
-            <HStack spacing={8}>
+            <HStack spacing={6}>
               <a href="#projects-section" onClick={handleClick("projects")}>
                 Projects
               </a>
@@ -120,5 +127,4 @@ const Header = () => {
     </Box>
   );
 };
-
 export default Header;
